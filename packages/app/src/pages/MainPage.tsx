@@ -27,11 +27,21 @@ import { Col, Row } from "../components/Layout";
 import { NumberedStep } from "../components/NumberedStep";
 import { TopBanner } from "../components/TopBanner";
 import { ProgressBar } from "../components/ProgressBar";
+import useGoogleAuth from "../hooks/useGoogleAuth";
 
 const CIRCUIT_NAME = "twitter";
 
 export const MainPage: React.FC<{}> = (props) => {
   const { address } = useAccount();
+
+  const {
+    googleAuthToken,
+    isGoogleAuthed,
+    loggedInGmail,
+    scopesApproved,
+    googleLogIn,
+    googleLogOut,
+  } = useGoogleAuth();
 
   const [ethereumAddress, setEthereumAddress] = useState<string>(address ?? "");
   const [emailFull, setEmailFull] = useState<string>(
@@ -209,6 +219,8 @@ export const MainPage: React.FC<{}> = (props) => {
       <div className="title">
         <Header>Proof of Twitter: ZK Email Demo</Header>
       </div>
+
+      <Button onClick={googleLogIn}>Sign in with Google</Button>
 
       <Col
         style={{
