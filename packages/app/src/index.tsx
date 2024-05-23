@@ -18,6 +18,7 @@ import { GoogleAuthProvider } from "./contexts/GoogleAuth";
 import { AccountProvider } from "./contexts/Account";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
+import { alchemyProvider } from 'wagmi/providers/alchemy'
 
 const { connectors } = getDefaultWallets({
   appName: "ZK Email - Twitter Verifier",
@@ -25,16 +26,31 @@ const { connectors } = getDefaultWallets({
   projectId: "b68298f4e6597f970ac06be1aea7998d",
 });
 
+// const configureChainsConfig = configureChains([sepolia], [publicProvider()]);
+
+const configureChainsConfig = configureChains(
+  [sepolia],
+  [
+    publicProvider()
+  ]
+);
+
+
+// const config = createConfig({
+//   autoConnect: true,
+//   publicClient: createPublicClient({
+//     chain: sepolia,
+//     transport: http(),
+//   }),
+//   connectors: connectors,
+// });
+
 const config = createConfig({
   autoConnect: true,
-  publicClient: createPublicClient({
-    chain: sepolia,
-    transport: http(),
-  }),
-  connectors: connectors,
-});
+  connectors,
+  publicClient: configureChainsConfig.publicClient
+})
 
-const configureChainsConfig = configureChains([sepolia], [publicProvider()]);
 
 const zeroDevOptions = {
   projectIds: [import.meta.env.VITE_ZERODEV_APP_ID],
