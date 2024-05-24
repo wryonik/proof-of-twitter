@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useMount, useUpdateEffect } from "react-use";
 import styled from "styled-components";
 import _ from "lodash";
-import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useAccount, useContractWrite, useSimulateContract, useWriteContract } from "wagmi";
 import { rawEmailToBuffer } from "@zk-email/helpers/dist/input-helpers";
 import {
   verifyDKIMSignature,
@@ -121,7 +121,7 @@ export const MainPage: React.FC<{}> = (props) => {
     ].flat();
   };
 
-  const { config } = usePrepareContractWrite({
+  const { data } = useSimulateContract({
     // @ts-ignore
     address: import.meta.env.VITE_CONTRACT_ADDRESS,
     abi: abi,
@@ -137,7 +137,7 @@ export const MainPage: React.FC<{}> = (props) => {
     },
   });
 
-  const { data, isLoading, isSuccess, write } = useContractWrite(config);
+  const { data: writeContractData, isPending, isSuccess, writeContract } = useWriteContract();
 
   useMount(() => {
     function handleKeyDown() {
@@ -465,17 +465,17 @@ export const MainPage: React.FC<{}> = (props) => {
             Verify
           </Button>
           <Button
-            disabled={!verificationPassed || isLoading || isSuccess || !write}
+            disabled={!verificationPassed || isPending || isSuccess || !writeContract}
             onClick={async () => {
               setStatus("sending-on-chain");
-              write?.();
+              writeContract?.(data!.request);
             }}
           >
             {isSuccess
               ? "Successfully sent to chain!"
-              : isLoading
+              : isPending
               ? "Confirm in wallet"
-              : !write
+              : !writeContract
               ? "Connect Wallet first, scroll to top!"
               : verificationPassed
               ? "Mint Twitter badge on-chain"
@@ -484,8 +484,8 @@ export const MainPage: React.FC<{}> = (props) => {
           {isSuccess && (
             <div>
               Transaction:{" "}
-              <a href={"https://sepolia.etherscan.io/tx/" + data?.hash}>
-                {data?.hash}
+              <a href={"https://sepolia.etherscan.io/tx/" + writeContractData}>
+                {writeContractData}
               </a>
             </div>
           )}

@@ -1,13 +1,16 @@
 import { useEffect, useState, ReactNode } from 'react';
-import { useAccount, useConnect, useDisconnect, useNetwork } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { useWallets } from '@privy-io/react-auth';
-import { usePrivyWagmi } from '@privy-io/wagmi-connector';
+// import { useSwitchNetwork } from '@privy-io/wagmi-connector';
+import {useSetActiveWallet} from '@privy-io/wagmi'; 
+
 import { usePrivy } from '@privy-io/react-auth';
 
 import AccountContext from './AccountContext';
 import { esl } from '../../constants';
 import { formatAddress } from '../../helpers/addressFormat';
 import { LoginStatus, LoginStatusType } from '../../helpers/types/loginStatus';
+import { sepolia } from 'viem/chains';
 
 interface ProvidersProps {
   children: ReactNode;
@@ -15,12 +18,14 @@ interface ProvidersProps {
 
 const AccountProvider = ({ children }: ProvidersProps) => {
   const { address } = useAccount();
-  const { chain } = useNetwork();
+  // const { chains } = useSwitchNetwork();
+  const chain = sepolia;
   const { disconnect } = useDisconnect();
   const { status: connectStatus } = useConnect();
   
   const { wallets } = useWallets();
-  const { wallet: activeWallet, setActiveWallet } = usePrivyWagmi();
+  const { setActiveWallet } = useSetActiveWallet();
+  const activeWallet = wallets.filter(wallet => wallet.address === address)
   const {
     authenticated,
     logout: authenticatedLogout,
